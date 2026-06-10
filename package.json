@@ -12,7 +12,10 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "check-all": "npm run typecheck && npm run lint && npm run format:check",
-    "prepare": "husky"
+    "prepare": "husky",
+    "client": "cd client && npm run dev",
+    "server": "cd server && npm run dev",
+    "matzip": "start cmd /k \"cd client && npm run dev\" && start cmd /k \"cd server && npm run dev\""
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
