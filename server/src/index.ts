@@ -2,6 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import curationRouter from './routes/curation'
+import geocodeRouter from './routes/geocode'
+import restaurantsRouter from './routes/restaurants'
 
 dotenv.config()
 
@@ -16,6 +18,8 @@ app.get('/health', (_req, res) => {
 })
 
 app.use('/api/curate', curationRouter)
+app.use('/api/geocode', geocodeRouter)
+app.use('/api/restaurants', restaurantsRouter)
 
 app.listen(PORT, () => {
   console.log(`맛ZIP 서버 실행 중: http://localhost:${PORT}`)

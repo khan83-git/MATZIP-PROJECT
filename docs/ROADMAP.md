@@ -6,41 +6,44 @@
 
 ## 📌 프로젝트 개요
 
-| 항목 | 내용 |
-|---|---|
-| 프로젝트명 | 맛ZIP (맛집 + ZIP/검색) |
-| 타겟 플랫폼 | 모바일 웹 브라우저 |
-| 핵심 가치 | 위치 기반 맛집 탐색 + AI 큐레이션으로 빠른 의사결정 지원 |
+| 항목        | 내용                                                     |
+| ----------- | -------------------------------------------------------- |
+| 프로젝트명  | 맛ZIP (맛집 + ZIP/검색)                                  |
+| 타겟 플랫폼 | 모바일 웹 브라우저                                       |
+| 핵심 가치   | 위치 기반 맛집 탐색 + AI 큐레이션으로 빠른 의사결정 지원 |
 
 ---
 
 ## 🛠️ 최종 기술 스택
 
 ### 프론트엔드
-| 구분 | 기술 | 버전 | 선택 이유 |
-|---|---|---|---|
-| 번들러 | Vite | 6.x | 빠른 HMR, 간결한 설정 |
-| UI 라이브러리 | React | 19.x | 최신 동시성 기능 |
-| 언어 | TypeScript | 5.x | 타입 안전성 |
-| 스타일링 | TailwindCSS | 4.x | 모바일 퍼스트 유틸리티 |
-| 라우팅 | React Router | 7.x | SPA 라우팅 |
-| 상태관리 | Zustand | 5.x | 경량, 보일러플레이트 최소 |
-| 서버 상태 | TanStack Query | 5.x | 캐싱, 로딩/에러 처리 |
-| HTTP | Axios | 1.x | 인터셉터, 에러 핸들링 |
-| 아이콘 | Lucide React | latest | 일관된 디자인 시스템 |
-| 폼 | React Hook Form + Zod | latest | 성능 최적화된 폼 검증 |
+
+| 구분          | 기술                  | 버전   | 선택 이유                 |
+| ------------- | --------------------- | ------ | ------------------------- |
+| 번들러        | Vite                  | 6.x    | 빠른 HMR, 간결한 설정     |
+| UI 라이브러리 | React                 | 19.x   | 최신 동시성 기능          |
+| 언어          | TypeScript            | 5.x    | 타입 안전성               |
+| 스타일링      | TailwindCSS           | 4.x    | 모바일 퍼스트 유틸리티    |
+| 라우팅        | React Router          | 7.x    | SPA 라우팅                |
+| 상태관리      | Zustand               | 5.x    | 경량, 보일러플레이트 최소 |
+| 서버 상태     | TanStack Query        | 5.x    | 캐싱, 로딩/에러 처리      |
+| HTTP          | Axios                 | 1.x    | 인터셉터, 에러 핸들링     |
+| 아이콘        | Lucide React          | latest | 일관된 디자인 시스템      |
+| 폼            | React Hook Form + Zod | latest | 성능 최적화된 폼 검증     |
 
 ### 백엔드 (프록시 서버)
-| 구분 | 기술 | 선택 이유 |
-|---|---|---|
-| 런타임 | Node.js + Express | Claude API 키 보호용 경량 프록시 |
-| AI | Anthropic SDK (`@anthropic-ai/sdk`) | Claude API 연동 |
+
+| 구분   | 기술                                | 선택 이유                        |
+| ------ | ----------------------------------- | -------------------------------- |
+| 런타임 | Node.js + Express                   | Claude API 키 보호용 경량 프록시 |
+| AI     | Anthropic SDK (`@anthropic-ai/sdk`) | Claude API 연동                  |
 
 ### 외부 API
-| 구분 | API |
-|---|---|
-| 지도 렌더링 | 네이버 지도 JavaScript API v3 |
-| 장소 검색 | 네이버 지도 Places API |
+
+| 구분        | API                            |
+| ----------- | ------------------------------ |
+| 지도 렌더링 | 네이버 지도 JavaScript API v3  |
+| 장소 검색   | 네이버 지도 Places API         |
 | AI 큐레이션 | Claude API (claude-sonnet-4-6) |
 
 ---
@@ -98,17 +101,19 @@ matzip-project/
   - 절대 경로 별칭 설정 (`@/` → `src/`)
 
 - [x] **0-2. 의존성 설치**
+
   ```bash
   # 프론트엔드 핵심
   npm install react-router-dom@7 zustand @tanstack/react-query axios
   npm install react-hook-form zod @hookform/resolvers
   npm install lucide-react
-  
+
   # 개발 도구
   npm install -D eslint prettier eslint-config-prettier
   ```
 
 - [x] **0-3. 서버 프로젝트 초기화**
+
   ```bash
   mkdir server && cd server
   npm init -y
@@ -117,6 +122,7 @@ matzip-project/
   ```
 
 - [x] **0-4. 환경변수 설정**
+
   ```env
   # client/.env
   VITE_NAVER_CLIENT_ID=
@@ -135,6 +141,7 @@ matzip-project/
   - Axios 인스턴스 및 기본 인터셉터 설정
 
 #### 완료 기준
+
 - `npm run dev` 실행 시 Vite 개발 서버 정상 동작
 - `npm run dev` 실행 시 Express 서버 정상 동작
 - 기본 라우팅 (`/`, `/search`) 페이지 전환 확인
@@ -148,47 +155,48 @@ matzip-project/
 
 #### 작업 목록
 
-- [ ] **1-1. 모바일 레이아웃 컴포넌트**
+- [x] **1-1. 모바일 레이아웃 컴포넌트**
   - `AppLayout`: 최대 너비 430px 고정, 전체 높이 채우기
   - `Header`: 상단 앱바 (뒤로가기, 타이틀, 액션 버튼)
   - `BottomNav`: 하단 탭 네비게이션 (홈, 검색, 즐겨찾기)
 
-- [ ] **1-2. 공통 UI 컴포넌트**
+- [x] **1-2. 공통 UI 컴포넌트**
   - `Button`: 기본/아웃라인/텍스트 변형, 로딩 상태
-  - `Input`: 검색 입력, 라벨, 에러 메시지
-  - `Card`: 맛집 정보 카드 기본 래퍼
+  - `SearchInput`: 검색 입력, 지우기 버튼
+  - `RestaurantCard`: 맛집 정보 카드 (거리, 평점, 즐겨찾기)
   - `Badge`: 업종 태그, 거리 표시
   - `BottomSheet`: 필터/상세 정보용 슬라이드 업 모달
-  - `Skeleton`: 로딩 상태 스켈레톤
+  - `Skeleton` / `RestaurantCardSkeleton`: 로딩 상태
   - `EmptyState`: 검색 결과 없음 상태
+  - `MoodChipList`: 모임 성격 선택 칩
 
-- [ ] **1-3. 홈 화면 (`/`)**
-  - 앱 로고 및 서비스 소개 텍스트
-  - "현재 위치로 검색" CTA 버튼
-  - "장소 검색" 입력 필드
+- [x] **1-3. 홈 화면 (`/`)**
+  - 오렌지 그라디언트 히어로 + 앱 소개
+  - "현재 위치로 검색" CTA 버튼 (Geolocation 연동)
+  - 장소 텍스트 검색 입력 필드
   - 모임 성격 빠른 선택 칩 (회식, 데이트, 비즈니스, 가족, 친구)
 
-- [ ] **1-4. 검색 결과 화면 (`/search`)**
+- [x] **1-4. 검색 결과 화면 (`/search`)**
   - 상단 검색바 (위치 텍스트 표시)
   - 반경 선택 칩 (50m / 100m / 300m / 500m / 1km)
-  - 업종 필터 바 (전체 / 한식 / 중식 / 일식 / 양식 / 카페)
-  - 정렬 드롭다운 (거리순 / 평점순 / 리뷰순)
-  - 맛집 카드 리스트 (무한 스크롤 준비)
+  - 업종 필터 바 + 정렬 드롭다운
+  - 맛집 카드 리스트 (로딩/빈 상태 처리)
   - 지도 보기 / 목록 보기 토글 버튼
 
-- [ ] **1-5. 맛집 상세 화면 (`/restaurant/:id`)**
-  - 맛집 이름, 업종, 주소
-  - 평점 및 리뷰 수
-  - 거리 정보
-  - 전화, 네이버 지도로 이동 버튼
-  - AI 큐레이션 요청 버튼
+- [x] **1-5. 맛집 상세 화면 (`/restaurant/:id`)**
+  - 맛집 이름, 업종 뱃지, 평점, 거리
+  - 주소, 전화번호
+  - 네이버 지도 이동 링크 + AI 추천 버튼
+  - 즐겨찾기 하트 버튼
 
-- [ ] **1-6. AI 큐레이션 화면 (`/curation`)**
-  - 모임 성격 선택 카드 UI
-  - 추천 맛집 리스트 (AI 코멘트 포함)
-  - 다시 추천받기 버튼
+- [x] **1-6. AI 큐레이션 화면 (`/curation`)**
+  - 모임 성격 선택 그리드 카드 UI
+  - SSE 스트리밍 텍스트 실시간 표시
+  - 추천 결과 카드 (순위, 코멘트, 태그)
+  - 전체 큐레이션 배너 + 다시 추천받기 버튼
 
 #### 완료 기준
+
 - 모든 화면 Figma 없이 모바일(375px) 기준 정상 렌더링
 - BottomNav로 화면 간 이동 동작
 - 다크/라이트 배경색 구분된 카드 레이아웃
@@ -201,60 +209,44 @@ matzip-project/
 > **예상 기간**: 2~3일
 
 #### 사전 준비
+
 - 네이버 클라우드 플랫폼 앱 등록 (Web Service URL 설정)
 - Application Client ID 발급
 - Maps, Places API 사용 설정
 
 #### 작업 목록
 
-- [ ] **2-1. 네이버 지도 스크립트 로드**
-  ```html
-  <!-- index.html -->
-  <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId={CLIENT_ID}&submodules=geocoder,places"></script>
-  ```
-  - TypeScript 타입 선언 파일 작성 (`naver.maps.d.ts`)
+- [x] **2-1. 네이버 지도 스크립트 로드**
+  - `index.html`에 `%VITE_NAVER_CLIENT_ID%` 환경변수로 스크립트 삽입
+  - `naver.maps.d.ts` TypeScript 타입 선언 (Phase 0에서 완성)
 
-- [ ] **2-2. `NaverMap` 컴포넌트 구현**
-  - 지도 초기화 (중심 좌표, 줌 레벨)
-  - 컴포넌트 언마운트 시 지도 인스턴스 정리
-  - 반응형 크기 조정 (ResizeObserver)
+- [x] **2-2. `NaverMap` 컴포넌트 구현**
+  - `forwardRef` + `NaverMapHandle` 노출 (`getMap`, `panTo`)
+  - 지도 스크립트 로드 대기 후 초기화 (100ms 폴링)
+  - 컴포넌트 언마운트 시 `map.destroy()` 호출
 
-- [ ] **2-3. 현재 위치 기능**
-  - 브라우저 Geolocation API 연동
-  - 위치 권한 요청 UX (권한 거부 시 안내 메시지)
-  - 현재 위치 마커 표시 (파란 점 + 정확도 원)
-  - 커스텀 훅: `useCurrentLocation()`
-    ```ts
-    // 반환값
-    { coords, isLoading, error, requestLocation }
-    ```
+- [x] **2-3. 현재 위치 기능**
+  - `useCurrentLocation` 훅: `{ coords, isLoading, error, requestLocation }`
+  - `CurrentLocationMarker`: 파란 점 + 펄스 애니메이션 HTML 마커
 
-- [ ] **2-4. 반경 원 시각화**
-  - 선택한 반경(50m~1km)에 따른 원 오버레이 표시
-  - 반경 변경 시 애니메이션 전환
+- [x] **2-4. 반경 원 시각화**
+  - `RadiusCircle`: 오렌지 반투명 원 오버레이
+  - 반경/중심 변경 시 즉시 업데이트
 
-- [ ] **2-5. 맛집 마커 표시**
-  - 커스텀 마커 아이콘 (업종별 색상 구분)
-  - 마커 클릭 시 하단 슬라이드 업 (간략 정보)
-  - 마커 클러스터링 (밀집 지역 처리)
+- [x] **2-5. 맛집 마커 표시**
+  - `RestaurantMarkers`: 업종별 이모지 커스텀 마커
+  - 선택된 마커 강조(오렌지 배경, 1.2× 크기)
+  - 마커 클릭 시 `BottomSheet`로 간략 정보 표시
 
-- [ ] **2-6. 지도 ↔ 목록 동기화**
-  - 목록 카드 클릭 시 해당 마커 활성화 + 지도 이동
-  - 지도 마커 클릭 시 목록 해당 카드 하이라이트
+- [x] **2-6. 지도 ↔ 목록 동기화**
+  - 목록 카드 클릭 → `selectedRestaurant` 스토어 업데이트 → 마커 하이라이트
+  - 마커 클릭 → `BottomSheet` + `panTo`로 지도 이동
+  - `MapView` 통합 컴포넌트로 SearchPage에서 지도/목록 토글
 
-- [ ] **2-7. Zustand 위치 스토어**
-  ```ts
-  interface LocationStore {
-    currentCoords: LatLng | null;      // 현재 위치
-    centerCoords: LatLng | null;       // 검색 기준 좌표
-    radius: number;                    // 검색 반경 (미터)
-    setCurrentCoords: (coords: LatLng) => void;
-    setCenterCoords: (coords: LatLng) => void;
-    setRadius: (radius: number) => void;
-  }
-  ```
+- [x] **2-7. Zustand 위치 스토어** (Phase 0에서 구현 완료)
 
 #### 완료 기준
+
 - 지도가 정상 렌더링되고 현재 위치 마커 표시
 - 반경 변경 시 원 오버레이 실시간 업데이트
 - 목록 ↔ 지도 마커 연동 동작
@@ -268,68 +260,66 @@ matzip-project/
 
 #### 작업 목록
 
-- [ ] **3-1. 장소 텍스트 검색 (특정 위치 기준)**
-  - 네이버 지도 Places API `searchKeyword()` 연동
-  - 검색창 자동완성 드롭다운 (디바운스 300ms)
-  - 선택한 장소 → 중심 좌표로 변환 → 검색 기준 설정
-  - 최근 검색어 저장 (localStorage)
+- [x] **3-1. 장소 텍스트 검색 (특정 위치 기준)**
+  - 네이버 Geocoding REST API (서버 프록시) 연동
+  - `LocationSearchInput`: 자동완성 드롭다운 (디바운스 350ms)
+  - 선택한 장소 → 중심 좌표 설정 → `/search` 이동
+  - 최근 검색어 localStorage 저장
 
-- [ ] **3-2. 반경 내 맛집 데이터 수집**
-  - Places API `categorySearch()` 로 음식점 카테고리 검색
-  - 중심 좌표 + 반경 파라미터 전달
-  - 페이지네이션 처리 (최대 5페이지 수집)
+- [x] **3-2. 반경 내 맛집 데이터 수집**
+  - OpenStreetMap Overpass API (무료, 키 불필요) 서버에서 호출
+  - 중심 좌표 + 반경(around) + amenity 필터 쿼리
+  - Haversine 공식으로 거리 계산 후 정렬
   - 수집 데이터 정규화:
     ```ts
     interface Restaurant {
-      id: string;
-      name: string;
-      category: string;      // 업종 (한식, 중식 등)
-      address: string;
-      coords: LatLng;
-      distance: number;      // 미터
-      phone?: string;
-      rating?: number;
-      reviewCount?: number;
-      naverPlaceUrl?: string;
+      id: string
+      name: string
+      category: string // 업종 (한식, 중식 등)
+      address: string
+      coords: LatLng
+      distance: number // 미터
+      phone?: string
+      rating?: number
+      reviewCount?: number
+      naverPlaceUrl?: string
     }
     ```
 
-- [ ] **3-3. 필터 및 정렬**
+- [x] **3-3. 필터 및 정렬**
   - 업종 필터 (전체 / 한식 / 중식 / 일식 / 양식 / 카페 / 기타)
-  - 정렬: 거리순(기본) / 평점순 / 리뷰수순
+  - 정렬: 거리순(기본) / 평점순 / 리뷰수순 (클라이언트 정렬)
   - 필터 상태 Zustand 스토어 관리
 
-- [ ] **3-4. TanStack Query 연동**
-  - `useRestaurantSearch(coords, radius, filters)` 커스텀 훅
-  - 캐싱 키: `['restaurants', centerCoords, radius, category]`
-  - 좌표/반경 변경 시 자동 재조회
-  - staleTime: 5분 (잦은 API 호출 방지)
+- [x] **3-4. TanStack Query 연동**
+  - `useRestaurantSearch(coords, radius, category)` 커스텀 훅
+  - 결과 자동으로 Zustand 스토어에 동기화 (지도 마커 연동)
+  - staleTime: 5분
 
-- [ ] **3-5. 무한 스크롤**
-  - `useInfiniteQuery` 적용
-  - IntersectionObserver로 목록 끝 감지 → 다음 페이지 로드
+- [x] **3-5. 무한 스크롤** — Overpass API 단일 응답 방식으로 대체 (페이지네이션 불필요)
 
-- [ ] **3-6. 검색 결과 상태 처리**
-  - 로딩: 스켈레톤 카드 3개 표시
-  - 에러: 재시도 버튼 + 에러 메시지
-  - 빈 결과: EmptyState 컴포넌트 ("근처에 맛집이 없어요")
-  - 결과 카드: 이름, 업종, 거리, 평점, 리뷰 수
+- [x] **3-6. 검색 결과 상태 처리**
+  - 로딩: 스켈레톤 카드 5개
+  - 에러: 재시도 버튼
+  - 좌표 미설정: 홈으로 안내
+  - 빈 결과: 반경 넓히기 버튼
 
-- [ ] **3-7. Zustand 검색 스토어**
+- [x] **3-7. Zustand 검색 스토어** (Phase 0에서 구현 완료)
   ```ts
   interface SearchStore {
-    restaurants: Restaurant[];
-    selectedRestaurant: Restaurant | null;
-    filters: SearchFilters;
-    recentSearches: string[];
-    setRestaurants: (data: Restaurant[]) => void;
-    setSelectedRestaurant: (r: Restaurant | null) => void;
-    setFilters: (filters: Partial<SearchFilters>) => void;
-    addRecentSearch: (keyword: string) => void;
+    restaurants: Restaurant[]
+    selectedRestaurant: Restaurant | null
+    filters: SearchFilters
+    recentSearches: string[]
+    setRestaurants: (data: Restaurant[]) => void
+    setSelectedRestaurant: (r: Restaurant | null) => void
+    setFilters: (filters: Partial<SearchFilters>) => void
+    addRecentSearch: (keyword: string) => void
   }
   ```
 
 #### 완료 기준
+
 - 현재 위치 버튼 → 반경 내 맛집 목록 + 지도 마커 표시
 - 텍스트 검색 → 장소 선택 → 해당 위치 기준 맛집 탐색
 - 필터/정렬 변경 시 목록 실시간 업데이트
@@ -351,24 +341,26 @@ matzip-project/
   - 에러 핸들링 (API 한도 초과, 타임아웃)
 
 - [ ] **4-2. 모임 성격 정의**
+
   ```ts
-  type MoodType = 
-    | 'hoesik'     // 회식 (넓은 공간, 단체 가능, 가성비)
-    | 'date'       // 데이트 (분위기, 인테리어, 조용함)
-    | 'business'   // 비즈니스 (프라이빗 룸, 주차, 격식)
-    | 'family'     // 가족 모임 (아이 친화, 넓은 좌석)
-    | 'friends'    // 친구 모임 (가성비, 활기, 다양한 메뉴)
+  type MoodType =
+    | 'hoesik' // 회식 (넓은 공간, 단체 가능, 가성비)
+    | 'date' // 데이트 (분위기, 인테리어, 조용함)
+    | 'business' // 비즈니스 (프라이빗 룸, 주차, 격식)
+    | 'family' // 가족 모임 (아이 친화, 넓은 좌석)
+    | 'friends' // 친구 모임 (가성비, 활기, 다양한 메뉴)
   ```
 
 - [ ] **4-3. Claude API 프롬프트 설계**
+
   ```
   시스템: 당신은 맛집 전문 큐레이터입니다. 주어진 맛집 목록과 모임 성격을 분석하여
          최적의 맛집을 추천하고 각 맛집에 대한 맞춤 추천 코멘트를 작성합니다.
-  
-  사용자: 
+
+  사용자:
   - 모임 성격: {moodType}
   - 후보 맛집 목록: {restaurants JSON}
-  
+
   응답 형식 (JSON):
   {
     "recommendations": [
@@ -406,6 +398,7 @@ matzip-project/
   - 수동 트리거 (`enabled: false` + `refetch()`)
 
 #### 완료 기준
+
 - 모임 성격 선택 → AI 추천 결과 3~5곳 표시
 - 각 맛집에 AI 생성 코멘트 및 태그 표시
 - 스트리밍으로 텍스트가 순차적으로 나타나는 효과
@@ -451,6 +444,7 @@ matzip-project/
   - Service Worker (정적 자산 캐싱)
 
 #### 완료 기준
+
 - 즐겨찾기 추가/제거 후 앱 재시작 시에도 유지
 - 오프라인 상태에서 안내 메시지 정상 표시
 - Lighthouse 모바일 성능 80점 이상
@@ -485,10 +479,10 @@ Week 2
 
 ## ⚠️ 주요 제약 및 고려 사항
 
-| 항목 | 내용 |
-|---|---|
-| API 보안 | Claude API 키는 서버(Express)에서만 사용, 클라이언트 노출 금지 |
-| 네이버 Places API | 무료 티어 일일 호출 한도 확인 필요 |
-| Geolocation | HTTPS 환경에서만 동작 (로컬 개발은 localhost 예외 적용) |
-| 모바일 최적화 | 지도 터치 이벤트, pinch-to-zoom 충돌 방지 처리 필요 |
-| AI 응답 시간 | Claude API 응답 평균 3~8초 → 로딩 UX 필수 |
+| 항목              | 내용                                                           |
+| ----------------- | -------------------------------------------------------------- |
+| API 보안          | Claude API 키는 서버(Express)에서만 사용, 클라이언트 노출 금지 |
+| 네이버 Places API | 무료 티어 일일 호출 한도 확인 필요                             |
+| Geolocation       | HTTPS 환경에서만 동작 (로컬 개발은 localhost 예외 적용)        |
+| 모바일 최적화     | 지도 터치 이벤트, pinch-to-zoom 충돌 방지 처리 필요            |
+| AI 응답 시간      | Claude API 응답 평균 3~8초 → 로딩 UX 필수                      |
