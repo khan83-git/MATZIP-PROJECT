@@ -333,14 +333,14 @@ matzip-project/
 
 #### 작업 목록
 
-- [ ] **4-1. Express 프록시 서버 구현**
+- [x] **4-1. Express 프록시 서버 구현**
   - `POST /api/curate` 엔드포인트
   - 요청 바디: `{ restaurants: Restaurant[], moodType: MoodType }`
   - Claude API 호출 후 응답 반환
   - CORS 설정 (클라이언트 origin 허용)
   - 에러 핸들링 (API 한도 초과, 타임아웃)
 
-- [ ] **4-2. 모임 성격 정의**
+- [x] **4-2. 모임 성격 정의**
 
   ```ts
   type MoodType =
@@ -351,7 +351,7 @@ matzip-project/
     | 'friends' // 친구 모임 (가성비, 활기, 다양한 메뉴)
   ```
 
-- [ ] **4-3. Claude API 프롬프트 설계**
+- [x] **4-3. Claude API 프롬프트 설계**
 
   ```
   시스템: 당신은 맛집 전문 큐레이터입니다. 주어진 맛집 목록과 모임 성격을 분석하여
@@ -376,26 +376,28 @@ matzip-project/
   }
   ```
 
-- [ ] **4-4. Streaming 응답 처리**
+- [x] **4-4. Streaming 응답 처리**
   - Claude API streaming 활성화
   - 서버에서 SSE (Server-Sent Events) 로 클라이언트에 전달
   - 클라이언트에서 타이핑 애니메이션 효과로 텍스트 표시
 
-- [ ] **4-5. 큐레이션 UI 구현**
+- [x] **4-5. 큐레이션 UI 구현**
   - 모임 성격 선택 카드 (이모지 + 레이블 + 설명)
-  - "AI 추천 받기" 버튼 → 로딩 애니메이션 (별자리 생성 이펙트)
+  - "AI 추천 받기" 버튼 → 로딩 스피너
   - 추천 결과 카드:
-    - 순위 뱃지 (1st, 2nd, 3rd)
+    - 순위 뱃지 (1st, 2nd, 3rd, #4, #5)
     - 맛집 이름 + AI 한 줄 요약
-    - AI 추천 코멘트 (타이핑 효과)
+    - AI 추천 코멘트
     - 태그 칩 목록
   - 전체 큐레이션 코멘트 배너
-  - "다시 추천받기" / "지도에서 보기" 버튼
+  - "다시 추천받기" 버튼
+  - 에러 상태 표시 (AlertCircle)
 
-- [ ] **4-6. TanStack Query 연동**
-  - `useCurationQuery(restaurants, moodType)` 커스텀 훅
-  - 캐싱: 동일 좌표 + 반경 + 모임 성격 조합 5분 캐시
-  - 수동 트리거 (`enabled: false` + `refetch()`)
+- [x] **4-6. 커스텀 훅 분리**
+  - `client/src/api/curation.ts`: SSE fetch 함수 (`streamCuration`)
+  - `client/src/hooks/useCuration.ts`: 스트리밍 상태 관리 훅
+  - AbortController로 중복 요청 취소 처리
+  - 모임 성격 선택 시 Zustand 스토어에 동기화
 
 #### 완료 기준
 

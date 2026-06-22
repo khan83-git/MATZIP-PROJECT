@@ -2,11 +2,16 @@ import { Router, Request, Response } from 'express'
 
 const router = Router()
 
-interface NaverGeocodeAddress {
-  roadAddress: string
-  jibunAddress: string
+interface KakaoDocument {
+  place_name: string
+  road_address_name: string
+  address_name: string
   x: string
   y: string
+}
+
+interface KakaoSearchResponse {
+  documents: KakaoDocument[]
 }
 
 router.get('/', async (req: Request, res: Response) => {
@@ -20,34 +25,36 @@ router.get('/', async (req: Request, res: Response) => {
   console.log(`[geocode] 검색: ${query}`)
 
   try {
-    const url = `https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=${encodeURIComponent(query)}`
+    const url = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(query)}&size=5`
     const response = await globalThis.fetch(url, {
       headers: {
-        'X-NCP-APIGW-API-KEY-ID': process.env.NAVER_CLIENT_ID ?? '',
-        'X-NCP-APIGW-API-KEY': process.env.NAVER_CLIENT_SECRET ?? '',
+        Authorization: `KakaoAK ${process.env.KAKAO_API_KEY ?? ''}`,
       },
     })
 
     if (!response.ok) {
-      console.error(`[geocode] 네이버 API 오류: HTTP ${response.status}`)
+      console.error(`[geocode] 카카오 API 오류: HTTP ${response.status}`)
       res
         .status(502)
         .json({ message: '위치 검색 서비스에 일시적인 문제가 있습니다.' })
       return
     }
 
-    const data = (await response.json()) as { addresses: NaverGeocodeAddress[] }
-    console.log(`[geocode] 결과: ${data.addresses?.length ?? 0}개`)
+    const data = (await response.json()) as KakaoSearchResponse
+    console.log(`[geocode] 결과: ${data.documents?.length ?? 0}개`)
 
-    if (!data.addresses?.length) {
+    if (!data.documents?.length) {
       res.json({ results: [] })
       return
     }
 
-    const results = data.addresses.slice(0, 5).map(addr => ({
-      name: addr.roadAddress || addr.jibunAddress,
-      address: addr.roadAddress || addr.jibunAddress,
-      coords: { lat: parseFloat(addr.y), lng: parseFloat(addr.x) },
+    const results = data.documents.slice(0, 5).map(doc => ({
+      name: doc.place_name,
+      address: doc.road_address_name || doc.address_name,
+      coords: {
+        lat: parseFloat(doc.y),
+        lng: parseFloat(doc.x),
+      },
     }))
 
     res.json({ results })

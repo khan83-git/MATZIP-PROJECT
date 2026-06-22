@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import { Sparkles, RefreshCw } from 'lucide-react'
+import { Sparkles, RefreshCw, AlertCircle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useSearchStore } from '@/store/searchStore'
+import { useCuration } from '@/hooks/useCuration'
 import Header from '@/components/layout/Header'
 import Button from '@/components/common/Button'
 import Badge from '@/components/common/Badge'
@@ -50,76 +50,31 @@ function CurationCard({ result, restaurantName }: CurationCardProps) {
 
 export default function CurationPage() {
   const navigate = useNavigate()
-  const [selectedMood, setSelectedMood] = useState<MoodType | null>(
-    useSearchStore.getState().selectedMood
-  )
-  const [isLoading, setIsLoading] = useState(false)
-  const [results, setResults] = useState<CurationResult[]>([])
-  const [overallComment, setOverallComment] = useState('')
-  const [streamText, setStreamText] = useState('')
 
   const restaurants = useSearchStore(s => s.restaurants)
+  const selectedMood = useSearchStore(s => s.selectedMood)
+  const setSelectedMood = useSearchStore(s => s.setSelectedMood)
 
-  const handleCurate = async () => {
+  const {
+    isLoading,
+    streamText,
+    results,
+    overallComment,
+    error,
+    startCuration,
+  } = useCuration()
+
+  const handleMoodChange = (mood: MoodType) => {
+    setSelectedMood(selectedMood === mood ? null : mood)
+  }
+
+  const handleCurate = () => {
     if (!selectedMood || restaurants.length === 0) return
-
-    setIsLoading(true)
-    setResults([])
-    setOverallComment('')
-    setStreamText('')
-
-    try {
-      const response = await fetch('/api/curate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ restaurants, moodType: selectedMood }),
-      })
-
-      if (!response.body) throw new Error('스트림 없음')
-
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
-      let buffer = ''
-      let accumulated = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() ?? ''
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue
-          const data = line.slice(6)
-          if (data === '[DONE]') continue
-          try {
-            const parsed = JSON.parse(data) as { text: string }
-            accumulated += parsed.text
-            setStreamText(accumulated)
-          } catch {
-            /* 불완전 청크 무시 */
-          }
-        }
-      }
-
-      // JSON 파싱
-      const jsonMatch = accumulated.match(/\{[\s\S]*\}/)
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0])
-        setResults(parsed.recommendations ?? [])
-        setOverallComment(parsed.overallComment ?? '')
-      }
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setIsLoading(false)
-      setStreamText('')
-    }
+    startCuration(restaurants, selectedMood)
   }
 
   const hasRestaurants = restaurants.length > 0
+  const hasResults = results.length > 0
 
   return (
     <div className="flex h-[calc(100svh-60px)] flex-col">
@@ -136,7 +91,7 @@ export default function CurationPage() {
               <button
                 key={opt.type}
                 type="button"
-                onClick={() => setSelectedMood(opt.type)}
+                onClick={() => handleMoodChange(opt.type)}
                 className={`flex flex-col items-center gap-1 rounded-xl border p-2.5 text-xs font-medium transition-all ${
                   selectedMood === opt.type
                     ? 'border-orange-400 bg-orange-50 text-orange-600'
@@ -161,10 +116,32 @@ export default function CurationPage() {
           />
         )}
 
+        {/* 에러 */}
+        {error && (
+          <div className="mx-4 mt-4 flex items-center gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-3">
+            <AlertCircle size={15} className="shrink-0 text-red-400" />
+            <p className="text-xs text-red-600">{error}</p>
+          </div>
+        )}
+
+        {/* 스트리밍 중 텍스트 */}
+        {isLoading && streamText && (
+          <div className="mx-4 mt-4 rounded-2xl border border-orange-100 bg-white p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <Sparkles size={14} className="animate-pulse text-orange-400" />
+              <span className="text-xs font-medium text-orange-500">
+                AI가 분석 중이에요...
+              </span>
+            </div>
+            <p className="text-xs leading-relaxed whitespace-pre-wrap text-gray-500">
+              {streamText}
+            </p>
+          </div>
+        )}
+
         {/* 추천 결과 */}
-        {results.length > 0 && (
+        {hasResults && (
           <div className="space-y-3 px-4 py-4">
-            {/* 전체 코멘트 배너 */}
             {overallComment && (
               <div className="flex items-start gap-2 rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3">
                 <Sparkles
@@ -188,21 +165,6 @@ export default function CurationPage() {
             })}
           </div>
         )}
-
-        {/* 스트리밍 중 텍스트 */}
-        {isLoading && streamText && (
-          <div className="mx-4 mt-4 rounded-2xl border border-orange-100 bg-white p-4">
-            <div className="mb-2 flex items-center gap-2">
-              <Sparkles size={14} className="animate-pulse text-orange-400" />
-              <span className="text-xs font-medium text-orange-500">
-                AI가 분석 중이에요...
-              </span>
-            </div>
-            <p className="text-xs leading-relaxed whitespace-pre-wrap text-gray-500">
-              {streamText}
-            </p>
-          </div>
-        )}
       </div>
 
       {/* 하단 고정 버튼 */}
@@ -212,17 +174,10 @@ export default function CurationPage() {
             fullWidth
             isLoading={isLoading}
             disabled={!selectedMood}
-            onClick={
-              results.length > 0
-                ? () => {
-                    setResults([])
-                    handleCurate()
-                  }
-                : handleCurate
-            }
+            onClick={handleCurate}
             className="gap-2"
           >
-            {results.length > 0 ? (
+            {hasResults ? (
               <>
                 <RefreshCw size={15} />
                 다시 추천받기

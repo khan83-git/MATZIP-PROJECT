@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MapPin, Navigation } from 'lucide-react'
+import { MapPin, Navigation, Search } from 'lucide-react'
 import { useLocationStore } from '@/store/locationStore'
 import { useSearchStore } from '@/store/searchStore'
+import { geocodeSearch } from '@/api/geocode'
 import Button from '@/components/common/Button'
 import LocationSearchInput from '@/components/common/LocationSearchInput'
 import { MoodChipList } from '@/components/common/MoodChip'
@@ -11,12 +12,15 @@ import type { MoodType } from '@/types'
 export default function HomePage() {
   const navigate = useNavigate()
   const [isLocating, setIsLocating] = useState(false)
+  const [isSearching, setIsSearching] = useState(false)
+  const [locationText, setLocationText] = useState('')
   const [locationError, setLocationError] = useState('')
 
   const setCenterCoords = useLocationStore(s => s.setCenterCoords)
   const setCurrentCoords = useLocationStore(s => s.setCurrentCoords)
   const selectedMood = useSearchStore(s => s.selectedMood)
   const setSelectedMood = useSearchStore(s => s.setSelectedMood)
+  const addRecentSearch = useSearchStore(s => s.addRecentSearch)
 
   const handleCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -41,8 +45,34 @@ export default function HomePage() {
     )
   }
 
+  // 자동완성 드롭다운에서 선택 시
   const handleLocationSelect = () => {
     navigate('/search')
+  }
+
+  // 직접 입력 후 "장소로 맛집 찾기" 버튼 또는 Enter 키
+  const handleLocationSubmit = async (text: string) => {
+    if (!text.trim()) return
+    setIsSearching(true)
+    setLocationError('')
+    try {
+      const results = await geocodeSearch(text)
+      if (results.length > 0) {
+        setCenterCoords(results[0].coords, results[0].name)
+        addRecentSearch(results[0].name)
+        navigate('/search')
+      } else {
+        setLocationError(
+          '해당 장소를 찾을 수 없어요. 다른 검색어를 입력해보세요.'
+        )
+      }
+    } catch {
+      setLocationError(
+        '장소 검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+      )
+    } finally {
+      setIsSearching(false)
+    }
   }
 
   const handleMoodChange = (mood: MoodType) => {
@@ -82,8 +112,26 @@ export default function HomePage() {
           <div className="h-px flex-1 bg-gray-100" />
         </div>
 
-        {/* 장소 검색 (자동완성) */}
-        <LocationSearchInput onSelect={handleLocationSelect} />
+        {/* 장소 검색 (자동완성 + controlled) */}
+        <LocationSearchInput
+          value={locationText}
+          onChange={setLocationText}
+          onSelect={handleLocationSelect}
+          onSubmit={handleLocationSubmit}
+        />
+
+        {/* 장소로 찾기 버튼 */}
+        <Button
+          fullWidth
+          variant="outline"
+          isLoading={isSearching}
+          disabled={!locationText.trim()}
+          onClick={() => handleLocationSubmit(locationText)}
+          className="gap-2"
+        >
+          <Search size={16} />
+          장소로 맛집 찾기
+        </Button>
 
         {locationError && (
           <p className="text-center text-xs text-red-500">{locationError}</p>

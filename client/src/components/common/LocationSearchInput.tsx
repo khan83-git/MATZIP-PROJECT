@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Search, X, MapPin, Loader2 } from 'lucide-react'
+import { Search, X, MapPin, Loader2, ArrowRight } from 'lucide-react'
 import { useGeocodeSearch } from '@/hooks/useGeocodeSearch'
 
 import { useLocationStore } from '@/store/locationStore'
@@ -7,20 +7,29 @@ import { useSearchStore } from '@/store/searchStore'
 import type { GeocodeResult } from '@/types'
 
 interface LocationSearchInputProps {
+  value?: string
+  onChange?: (val: string) => void
+  onSubmit?: (value: string) => void
   placeholder?: string
   onSelect?: (result: GeocodeResult) => void
   className?: string
 }
 
 export default function LocationSearchInput({
+  value: controlledValue,
+  onChange: onChangeProp,
+  onSubmit,
   placeholder = '장소를 입력하세요 (예: 강남역, 홍대입구)',
   onSelect,
   className = '',
 }: LocationSearchInputProps) {
-  const [inputValue, setInputValue] = useState('')
+  const [internalValue, setInternalValue] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const isControlled = controlledValue !== undefined
+  const inputValue = isControlled ? controlledValue : internalValue
 
   const setCenterCoords = useLocationStore(s => s.setCenterCoords)
   const addRecentSearch = useSearchStore(s => s.addRecentSearch)
@@ -42,6 +51,14 @@ export default function LocationSearchInput({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const setInputValue = (val: string) => {
+    if (isControlled) {
+      onChangeProp?.(val)
+    } else {
+      setInternalValue(val)
+    }
+  }
+
   const handleSelect = (result: GeocodeResult) => {
     setInputValue(result.name)
     setIsOpen(false)
@@ -54,6 +71,26 @@ export default function LocationSearchInput({
     setInputValue('')
     setIsOpen(false)
     inputRef.current?.focus()
+  }
+
+  const handleSubmit = () => {
+    const trimmed = inputValue.trim()
+    if (!trimmed) return
+    if (results.length > 0) {
+      handleSelect(results[0])
+    } else {
+      onSubmit?.(trimmed)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSubmit()
+    } else if (e.key === 'Escape') {
+      setIsOpen(false)
+      inputRef.current?.blur()
+    }
   }
 
   const showRecent = inputValue.length === 0 && recentSearches.length > 0
@@ -84,18 +121,30 @@ export default function LocationSearchInput({
             setIsOpen(true)
           }}
           onFocus={() => setIsOpen(true)}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="h-11 w-full rounded-xl bg-gray-100 pr-9 pl-9 text-sm text-gray-900 transition-colors outline-none placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-orange-400"
+          className="h-11 w-full rounded-xl bg-gray-100 pl-9 text-sm text-gray-900 transition-colors outline-none placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-orange-400"
+          style={{ paddingRight: inputValue ? '4rem' : '0.75rem' }}
         />
         {inputValue && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute right-3 text-gray-400 hover:text-gray-600"
-            aria-label="지우기"
-          >
-            <X size={15} />
-          </button>
+          <div className="absolute right-2 flex items-center gap-1">
+            <button
+              type="button"
+              onClick={handleClear}
+              className="p-1 text-gray-400 hover:text-gray-600"
+              aria-label="지우기"
+            >
+              <X size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="rounded-lg bg-orange-500 p-1 text-white hover:bg-orange-600"
+              aria-label="검색"
+            >
+              <ArrowRight size={14} />
+            </button>
+          </div>
         )}
       </div>
 

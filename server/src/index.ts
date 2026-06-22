@@ -1,11 +1,8 @@
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import curationRouter from './routes/curation'
 import geocodeRouter from './routes/geocode'
 import restaurantsRouter from './routes/restaurants'
-
-dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT ?? 3001

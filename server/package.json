@@ -4,7 +4,7 @@
   "description": "맛ZIP AI 큐레이션 프록시 서버",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/index.ts",
+    "dev": "nodemon --exec \"ts-node -r dotenv/config src/index.ts\"",
     "build": "tsc",
     "start": "node dist/index.js"
   },

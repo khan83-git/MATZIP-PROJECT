@@ -68,6 +68,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.write('data: [DONE]\n\n')
     res.end()
   } catch (err) {
+    console.error('[curate] 오류:', err)
     if (!res.headersSent) {
       res.status(500).json({ message: 'AI 추천 생성에 실패했습니다.' })
     }

@@ -133,7 +133,7 @@ export default function RestaurantDetailPage() {
               className="flex h-11 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
             >
               <ExternalLink size={15} />
-              네이버 지도
+              카카오 지도
             </a>
           )}
           <Button
