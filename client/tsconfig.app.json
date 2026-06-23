@@ -16,6 +16,7 @@
     "jsx": "react-jsx",
 
     /* 경로 별칭 */
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
