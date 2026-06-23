@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Sparkles, RefreshCw, AlertCircle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useSearchStore } from '@/store/searchStore'
@@ -64,6 +65,19 @@ export default function CurationPage() {
     startCuration,
   } = useCuration()
 
+  // 진입 시 조건이 갖춰지면 자동 실행 (마운트 1회만)
+  useEffect(() => {
+    if (
+      restaurants.length > 0 &&
+      selectedMood &&
+      !isLoading &&
+      results.length === 0
+    ) {
+      startCuration(restaurants, selectedMood)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const handleMoodChange = (mood: MoodType) => {
     setSelectedMood(selectedMood === mood ? null : mood)
   }
@@ -75,6 +89,10 @@ export default function CurationPage() {
 
   const hasRestaurants = restaurants.length > 0
   const hasResults = results.length > 0
+  // React 18 자동배칭으로 isLoading 중간상태가 렌더에 반영 안 될 수 있으므로
+  // 첫 프레임부터 동기적으로 로딩 판단
+  const shouldShowLoading =
+    isLoading || (hasRestaurants && !!selectedMood && !hasResults && !error)
 
   return (
     <div className="flex h-[calc(100svh-60px)] flex-col">
@@ -124,18 +142,53 @@ export default function CurationPage() {
           </div>
         )}
 
-        {/* 스트리밍 중 텍스트 */}
-        {isLoading && streamText && (
-          <div className="mx-4 mt-4 rounded-2xl border border-orange-100 bg-white p-4">
-            <div className="mb-2 flex items-center gap-2">
-              <Sparkles size={14} className="animate-pulse text-orange-400" />
-              <span className="text-xs font-medium text-orange-500">
-                AI가 분석 중이에요...
+        {/* 로딩 중 애니메이션 (결과 나오기 직전까지 유지) */}
+        {shouldShowLoading && (
+          <div className="flex flex-col items-center gap-6 px-4 py-10">
+            <div className="flex items-end gap-4">
+              <span className="animate-bounce text-4xl [animation-delay:0ms]">
+                🍽️
+              </span>
+              <span className="animate-bounce text-4xl [animation-delay:150ms]">
+                🤖
+              </span>
+              <span className="animate-bounce text-4xl [animation-delay:300ms]">
+                ✨
               </span>
             </div>
-            <p className="text-xs leading-relaxed whitespace-pre-wrap text-gray-500">
-              {streamText}
-            </p>
+
+            {streamText ? (
+              <div className="w-full rounded-2xl border border-orange-100 bg-white p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <Sparkles
+                    size={14}
+                    className="animate-pulse text-orange-400"
+                  />
+                  <span className="text-xs font-medium text-orange-500">
+                    AI가 분석 중이에요...
+                  </span>
+                </div>
+                <p className="text-xs leading-relaxed whitespace-pre-wrap text-gray-500">
+                  {streamText}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-1 text-center">
+                  <p className="text-sm font-semibold text-gray-700">
+                    AI가 맛집을 분석중이에요
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    주변 식당들을 꼼꼼히 살펴보고 있어요
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-2 w-2 animate-bounce rounded-full bg-orange-400 [animation-delay:0ms]" />
+                  <div className="h-2 w-2 animate-bounce rounded-full bg-orange-400 [animation-delay:150ms]" />
+                  <div className="h-2 w-2 animate-bounce rounded-full bg-orange-400 [animation-delay:300ms]" />
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -172,7 +225,7 @@ export default function CurationPage() {
         <div className="border-t border-gray-100 bg-white px-5 py-4">
           <Button
             fullWidth
-            isLoading={isLoading}
+            isLoading={shouldShowLoading}
             disabled={!selectedMood}
             onClick={handleCurate}
             className="gap-2"
@@ -181,6 +234,11 @@ export default function CurationPage() {
               <>
                 <RefreshCw size={15} />
                 다시 추천받기
+              </>
+            ) : shouldShowLoading ? (
+              <>
+                <Sparkles size={15} className="animate-spin" />
+                AI가 분석중...
               </>
             ) : (
               <>

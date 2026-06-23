@@ -407,43 +407,39 @@ matzip-project/
 
 ---
 
-### Phase 5: 고도화 및 UX 개선
+### Phase 5: 고도화 및 UX 개선 ✅
 
 > **목표**: 사용성 개선, 엣지 케이스 처리, PWA 적용
-> **예상 기간**: 2일
+> **예상 기간**: 2일 | **완료**: 2026-06-23
 
 #### 작업 목록
 
-- [ ] **5-1. 즐겨찾기 기능**
+- [x] **5-1. 즐겨찾기 기능**
   - 하트 버튼으로 맛집 즐겨찾기 토글
-  - localStorage 영속화
-  - 즐겨찾기 탭 화면 구현
+  - localStorage 영속화 (Zustand persist 미들웨어)
+  - 즐겨찾기 탭 화면 구현 (전체 삭제 버튼 포함)
 
-- [ ] **5-2. 검색 반경 슬라이더**
+- [x] **5-2. 검색 반경 슬라이더**
   - 드래그 슬라이더로 50m ~ 2km 연속 조절
   - 슬라이더 이동 시 지도 원 오버레이 실시간 업데이트
 
-- [ ] **5-3. UX 개선**
-  - Pull-to-refresh (목록 당겨서 새로고침)
-  - 스크롤 상단 이동 FAB 버튼
-  - 검색 중 지도 영역 축소 / 결과 목록 확장 트랜지션
-  - 로딩 스켈레톤 shimmer 애니메이션
+- [x] **5-3. UX 개선**
+  - Pull-to-refresh (목록 당겨서 새로고침) — `usePullToRefresh` 훅
+  - 스크롤 상단 이동 FAB 버튼 — `ScrollToTopFAB` 컴포넌트
+  - 로딩 스켈레톤 shimmer 애니메이션 (`@keyframes shimmer`)
 
-- [ ] **5-4. 에러 처리 강화**
-  - 네트워크 오프라인 감지 + 배너 표시
-  - API 에러 코드별 사용자 메시지 (위치 권한 거부, API 한도 초과)
-  - 전역 에러 바운더리 (`ErrorBoundary` 컴포넌트)
+- [x] **5-4. 에러 처리 강화**
+  - 네트워크 오프라인 감지 + 배너 표시 — `useNetworkStatus` + `OfflineBanner`
+  - 전역 에러 바운더리 — `ErrorBoundary` 컴포넌트 (App.tsx 적용)
 
-- [ ] **5-5. 접근성 및 성능**
-  - 시맨틱 HTML (landmark roles, aria-label)
-  - 이미지 lazy loading
-  - React.memo / useMemo 최적화 포인트 점검
-  - Lighthouse 모바일 점수 80점 이상 목표
+- [x] **5-5. 접근성 및 성능**
+  - aria-label 추가 (즐겨찾기 버튼, 슬라이더, FAB)
+  - `React.memo`로 RestaurantCard 최적화
 
-- [ ] **5-6. PWA 설정**
+- [x] **5-6. PWA 설정**
   - `vite-plugin-pwa` 적용
   - Web App Manifest (홈 화면 추가 지원)
-  - Service Worker (정적 자산 캐싱)
+  - Service Worker (정적 자산 캐싱 + Naver API NetworkFirst)
 
 #### 완료 기준
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Map,
@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { useLocationStore } from '@/store/locationStore'
 import { useSearchStore } from '@/store/searchStore'
+import { useFavoriteStore } from '@/store/favoriteStore'
 import { useRestaurantSearch } from '@/hooks/useRestaurantSearch'
 import Header from '@/components/layout/Header'
 import LocationSearchInput from '@/components/common/LocationSearchInput'
@@ -18,16 +19,9 @@ import EmptyState from '@/components/common/EmptyState'
 import RestaurantCard from '@/components/restaurant/RestaurantCard'
 import { RestaurantCardSkeleton } from '@/components/common/Skeleton'
 import MapView from '@/components/map/MapView'
-import type { RadiusOption } from '@/types'
-
+import ScrollToTopFAB from '@/components/common/ScrollToTopFAB'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 const CATEGORIES = ['전체', '한식', '중식', '일식', '양식', '카페', '기타']
-const RADIUS_OPTIONS: { label: string; value: RadiusOption }[] = [
-  { label: '50m', value: 50 },
-  { label: '100m', value: 100 },
-  { label: '300m', value: 300 },
-  { label: '500m', value: 500 },
-  { label: '1km', value: 1000 },
-]
 const SORT_OPTIONS = [
   { label: '거리순', value: 'distance' as const },
   { label: '평점순', value: 'rating' as const },
@@ -49,6 +43,9 @@ export default function SearchPage() {
   const filters = useSearchStore(s => s.filters)
   const setFilters = useSearchStore(s => s.setFilters)
 
+  const { isFavorite, toggleFavorite } = useFavoriteStore()
+  const listRef = useRef<HTMLDivElement>(null)
+
   const {
     data: restaurants = [],
     isLoading,
@@ -66,6 +63,12 @@ export default function SearchPage() {
 
   const currentSortLabel =
     SORT_OPTIONS.find(o => o.value === filters.sortBy)?.label ?? '거리순'
+
+  const { isPulling, pullDistance, isRefreshing } = usePullToRefresh(listRef, {
+    onRefresh: async () => {
+      await refetch()
+    },
+  })
 
   return (
     <div className="flex h-[calc(100svh-60px)] flex-col">
@@ -96,22 +99,32 @@ export default function SearchPage() {
           </p>
         )}
 
-        {/* 반경 */}
-        <div className="scrollbar-hide flex gap-1.5 overflow-x-auto">
-          {RADIUS_OPTIONS.map(opt => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setRadius(opt.value)}
-              className={`flex-shrink-0 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                radius === opt.value
-                  ? 'border-orange-500 bg-orange-500 text-white'
-                  : 'border-gray-200 bg-white text-gray-600'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+        {/* 반경 슬라이더 */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-500">검색 반경</span>
+            <span className="text-xs font-semibold text-orange-500">
+              {radius >= 1000
+                ? `${(radius / 1000).toFixed(1)}km`
+                : `${radius}m`}
+            </span>
+          </div>
+          <input
+            type="range"
+            min={50}
+            max={2000}
+            step={50}
+            value={radius}
+            onChange={e => setRadius(Number(e.target.value))}
+            className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-orange-500"
+            aria-label="검색 반경 슬라이더"
+          />
+          <div className="flex justify-between text-[10px] text-gray-400">
+            <span>50m</span>
+            <span>500m</span>
+            <span>1km</span>
+            <span>2km</span>
+          </div>
         </div>
       </div>
 
@@ -178,7 +191,22 @@ export default function SearchPage() {
       {viewMode === 'map' ? (
         <MapView className="flex-1" />
       ) : (
-        <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div
+          ref={listRef}
+          className="relative flex-1 overflow-y-auto bg-gray-50"
+        >
+          {/* Pull-to-refresh 인디케이터 */}
+          {(isPulling || isRefreshing) && (
+            <div
+              className="flex items-center justify-center overflow-hidden transition-all"
+              style={{ height: pullDistance || (isRefreshing ? 48 : 0) }}
+            >
+              <RefreshCw
+                size={18}
+                className={`text-orange-400 ${isRefreshing ? 'animate-spin' : ''}`}
+              />
+            </div>
+          )}
           {/* 좌표 미설정 */}
           {!centerCoords && (
             <EmptyState
@@ -253,13 +281,15 @@ export default function SearchPage() {
                     key={r.id}
                     restaurant={r}
                     isSelected={selectedRestaurant?.id === r.id}
-                    onFavoriteToggle={() => {}}
+                    isFavorite={isFavorite(r.id)}
+                    onFavoriteToggle={() => toggleFavorite(r)}
                     onClick={() => setSelectedRestaurant(r)}
                   />
                 ))}
               </div>
             </>
           )}
+          <ScrollToTopFAB scrollRef={listRef} />
         </div>
       )}
     </div>

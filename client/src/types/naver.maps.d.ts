@@ -8,7 +8,15 @@ declare namespace naver {
       getZoom(): number
       destroy(): void
       panTo(coord: Coord): void
-      fitBounds(bounds: LatLngBounds, margin?: { top?: number; right?: number; bottom?: number; left?: number }): void
+      fitBounds(
+        bounds: LatLngBounds,
+        margin?: {
+          top?: number
+          right?: number
+          bottom?: number
+          left?: number
+        }
+      ): void
     }
 
     class LatLng {
@@ -47,13 +55,30 @@ declare namespace naver {
     }
 
     namespace Event {
-      function addListener(target: object, type: string, listener: (...args: unknown[]) => void): void
-      function removeListener(target: object, type: string, listener: (...args: unknown[]) => void): void
+      function addListener(
+        target: object,
+        type: string,
+        listener: (...args: unknown[]) => void
+      ): void
+      function removeListener(
+        target: object,
+        type: string,
+        listener: (...args: unknown[]) => void
+      ): void
     }
 
     namespace Service {
-      function geocode(options: GeocodeOptions, callback: (status: ServiceStatus, response: GeocodeResponse) => void): void
-      function reverseGeocode(options: ReverseGeocodeOptions, callback: (status: ServiceStatus, response: ReverseGeocodeResponse) => void): void
+      function geocode(
+        options: GeocodeOptions,
+        callback: (status: ServiceStatus, response: GeocodeResponse) => void
+      ): void
+      function reverseGeocode(
+        options: ReverseGeocodeOptions,
+        callback: (
+          status: ServiceStatus,
+          response: ReverseGeocodeResponse
+        ) => void
+      ): void
 
       const Status: {
         OK: ServiceStatus
@@ -65,8 +90,18 @@ declare namespace naver {
     }
 
     namespace Place {
-      function searchPlaces(query: string, callback: (status: PlaceSearchStatus, result: PlaceSearchResult) => void, options?: PlaceSearchOptions): void
-      function nearbySearch(options: NearbySearchOptions, callback: (status: PlaceSearchStatus, result: PlaceSearchResult) => void): void
+      function searchPlaces(
+        query: string,
+        callback: (
+          status: PlaceSearchStatus,
+          result: PlaceSearchResult
+        ) => void,
+        options?: PlaceSearchOptions
+      ): void
+      function nearbySearch(
+        options: NearbySearchOptions,
+        callback: (status: PlaceSearchStatus, result: PlaceSearchResult) => void
+      ): void
 
       type PlaceSearchStatus = 'OK' | 'ERROR' | 'ZERO_RESULTS'
     }
@@ -81,6 +116,7 @@ declare namespace naver {
       mapTypeId?: string
       zoomControl?: boolean
       zoomControlOptions?: { position: Position }
+      mapTypeControl?: boolean
     }
 
     interface MarkerOptions {

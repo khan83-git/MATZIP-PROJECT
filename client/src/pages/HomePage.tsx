@@ -22,6 +22,10 @@ export default function HomePage() {
   const setSelectedMood = useSearchStore(s => s.setSelectedMood)
   const addRecentSearch = useSearchStore(s => s.addRecentSearch)
 
+  const goToSearch = () => {
+    navigate('/search')
+  }
+
   const handleCurrentLocation = () => {
     if (!navigator.geolocation) {
       setLocationError('이 브라우저는 위치 서비스를 지원하지 않습니다.')
@@ -35,7 +39,7 @@ export default function HomePage() {
         setCurrentCoords(coords)
         setCenterCoords(coords, '현재 위치')
         setIsLocating(false)
-        navigate('/search')
+        goToSearch()
       },
       () => {
         setLocationError('위치 권한을 허용해 주세요.')
@@ -45,12 +49,10 @@ export default function HomePage() {
     )
   }
 
-  // 자동완성 드롭다운에서 선택 시
   const handleLocationSelect = () => {
-    navigate('/search')
+    goToSearch()
   }
 
-  // 직접 입력 후 "장소로 맛집 찾기" 버튼 또는 Enter 키
   const handleLocationSubmit = async (text: string) => {
     if (!text.trim()) return
     setIsSearching(true)
@@ -60,7 +62,7 @@ export default function HomePage() {
       if (results.length > 0) {
         setCenterCoords(results[0].coords, results[0].name)
         addRecentSearch(results[0].name)
-        navigate('/search')
+        goToSearch()
       } else {
         setLocationError(
           '해당 장소를 찾을 수 없어요. 다른 검색어를 입력해보세요.'
@@ -93,9 +95,25 @@ export default function HomePage() {
         </p>
       </div>
 
+      {/* 모임 성격 선택 */}
+      <div className="mt-5 px-4">
+        <p className="mb-3 text-sm font-semibold text-gray-700">
+          어떤 모임인가요?
+        </p>
+        <MoodChipList selected={selectedMood} onChange={handleMoodChange} />
+        {selectedMood ? (
+          <p className="mt-2 text-xs text-orange-500">
+            선택됨 — 검색하면 AI가 바로 맞춤 추천해드려요 ✨
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-gray-400">
+            모임을 선택하면 AI 추천까지 한 번에!
+          </p>
+        )}
+      </div>
+
       {/* 검색 카드 */}
-      <div className="mx-4 -mt-6 space-y-4 rounded-2xl bg-white p-5 shadow-md">
-        {/* 현재 위치 버튼 */}
+      <div className="mx-4 mt-4 space-y-4 rounded-2xl bg-white p-5 shadow-md">
         <Button
           fullWidth
           isLoading={isLocating}
@@ -112,7 +130,6 @@ export default function HomePage() {
           <div className="h-px flex-1 bg-gray-100" />
         </div>
 
-        {/* 장소 검색 (자동완성 + controlled) */}
         <LocationSearchInput
           value={locationText}
           onChange={setLocationText}
@@ -120,7 +137,6 @@ export default function HomePage() {
           onSubmit={handleLocationSubmit}
         />
 
-        {/* 장소로 찾기 버튼 */}
         <Button
           fullWidth
           variant="outline"
@@ -138,28 +154,15 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* 모임 성격 */}
-      <div className="mt-6 px-4">
-        <p className="mb-3 text-sm font-semibold text-gray-700">
-          어떤 모임인가요?
-        </p>
-        <MoodChipList selected={selectedMood} onChange={handleMoodChange} />
-        {selectedMood && (
-          <p className="mt-2 text-xs text-orange-500">
-            선택됨 — 검색 후 AI가 맞춤 추천해드려요
-          </p>
-        )}
-      </div>
-
-      {/* 사용 가이드 */}
+      {/* 이용 방법 */}
       <div className="mt-8 mb-6 space-y-3 px-4">
         <p className="text-xs font-semibold tracking-wide text-gray-400 uppercase">
           이용 방법
         </p>
         {[
-          { step: '1', text: '현재 위치 또는 장소를 입력하세요' },
-          { step: '2', text: '반경과 업종을 선택하세요' },
-          { step: '3', text: 'AI 추천으로 최적의 맛집을 골라보세요' },
+          { step: '1', text: '모임 성격을 먼저 선택하세요' },
+          { step: '2', text: '현재 위치 또는 장소를 입력하세요' },
+          { step: '3', text: 'AI가 모임에 맞는 맛집을 골라드려요' },
         ].map(({ step, text }) => (
           <div key={step} className="flex items-center gap-3">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-orange-100 text-xs font-bold text-orange-500">
