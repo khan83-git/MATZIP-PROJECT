@@ -4,6 +4,7 @@ const router = Router()
 
 const KAKAO_CATEGORY_URL =
   'https://dapi.kakao.com/v2/local/search/category.json'
+const KAKAO_IMAGE_URL = 'https://dapi.kakao.com/v2/search/image'
 
 interface KakaoPlace {
   id: string
@@ -17,11 +18,28 @@ interface KakaoPlace {
   y: string // 위도
   distance: string
   place_url: string
+  thumbnail_url?: string
 }
 
 interface KakaoResponse {
   documents: KakaoPlace[]
   meta: { total_count: number; pageable_count: number; is_end: boolean }
+}
+
+async function fetchPlaceImage(name: string): Promise<string | undefined> {
+  try {
+    const params = new URLSearchParams({ query: name, size: '1' })
+    const res = await globalThis.fetch(`${KAKAO_IMAGE_URL}?${params}`, {
+      headers: { Authorization: `KakaoAK ${process.env.KAKAO_API_KEY}` },
+    })
+    if (!res.ok) return undefined
+    const data = (await res.json()) as {
+      documents: Array<{ thumbnail_url: string }>
+    }
+    return data.documents?.[0]?.thumbnail_url || undefined
+  } catch {
+    return undefined
+  }
 }
 
 function mapCategory(categoryName: string): string {
@@ -143,6 +161,7 @@ router.post('/', async (req: Request, res: Response) => {
       coords: { lat: parseFloat(p.y), lng: parseFloat(p.x) },
       distance: parseInt(p.distance, 10),
       phone: p.phone || undefined,
+      imageUrl: p.thumbnail_url || undefined,
       naverPlaceUrl: p.place_url || undefined,
     }))
 
@@ -154,14 +173,32 @@ router.post('/', async (req: Request, res: Response) => {
     const sorted = filtered.sort((a, b) => a.distance - b.distance)
 
     console.log(`[restaurants] 최종 결과 — ${sorted.length}개`)
-    res.json({ restaurants: sorted })
+
+    // 이미지가 없는 상위 20개에 카카오 이미지 검색으로 보강
+    const IMAGE_LIMIT = 20
+    const toEnrich = sorted.slice(0, IMAGE_LIMIT)
+    const rest = sorted.slice(IMAGE_LIMIT)
+
+    const enriched = await Promise.allSettled(
+      toEnrich.map(async r => ({
+        ...r,
+        imageUrl: r.imageUrl ?? (await fetchPlaceImage(r.name)),
+      }))
+    )
+
+    const finalList = [
+      ...enriched
+        .map(r => (r.status === 'fulfilled' ? r.value : null))
+        .filter(Boolean),
+      ...rest,
+    ]
+
+    res.json({ restaurants: finalList })
   } catch (err) {
     console.error('[restaurants] 오류:', err)
-    res
-      .status(500)
-      .json({
-        message: '음식점 검색에 실패했습니다. 잠시 후 다시 시도해주세요.',
-      })
+    res.status(500).json({
+      message: '음식점 검색에 실패했습니다. 잠시 후 다시 시도해주세요.',
+    })
   }
 })
 

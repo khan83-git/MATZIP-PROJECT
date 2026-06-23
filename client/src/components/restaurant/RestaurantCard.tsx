@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Star, MapPin, Phone, Heart } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import Badge from '@/components/common/Badge'
@@ -15,7 +16,7 @@ function formatDistance(meters: number): string {
   return meters >= 1000 ? `${(meters / 1000).toFixed(1)}km` : `${meters}m`
 }
 
-export default function RestaurantCard({
+const RestaurantCard = memo(function RestaurantCard({
   restaurant,
   isFavorite = false,
   onFavoriteToggle,
@@ -39,17 +40,41 @@ export default function RestaurantCard({
         isSelected ? 'border-l-4 border-orange-400' : ''
       }`}
     >
-      {/* 썸네일 자리 */}
-      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-2xl">
-        {restaurant.category.includes('카페')
-          ? '☕'
-          : restaurant.category.includes('일식')
-            ? '🍱'
-            : restaurant.category.includes('중식')
-              ? '🥟'
-              : restaurant.category.includes('양식')
-                ? '🍝'
-                : '🍽️'}
+      {/* 썸네일 */}
+      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+        {restaurant.imageUrl ? (
+          <img
+            src={restaurant.imageUrl}
+            alt={restaurant.name}
+            className="h-full w-full object-cover"
+            loading="lazy"
+            onError={e => {
+              e.currentTarget.parentElement!.innerHTML = `<div class="flex h-full w-full items-center justify-center text-2xl">${
+                restaurant.category.includes('카페')
+                  ? '☕'
+                  : restaurant.category.includes('일식')
+                    ? '🍱'
+                    : restaurant.category.includes('중식')
+                      ? '🥟'
+                      : restaurant.category.includes('양식')
+                        ? '🍝'
+                        : '🍽️'
+              }</div>`
+            }}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-2xl">
+            {restaurant.category.includes('카페')
+              ? '☕'
+              : restaurant.category.includes('일식')
+                ? '🍱'
+                : restaurant.category.includes('중식')
+                  ? '🥟'
+                  : restaurant.category.includes('양식')
+                    ? '🍝'
+                    : '🍽️'}
+          </div>
+        )}
       </div>
 
       {/* 정보 */}
@@ -108,4 +133,6 @@ export default function RestaurantCard({
       </div>
     </div>
   )
-}
+})
+
+export default RestaurantCard

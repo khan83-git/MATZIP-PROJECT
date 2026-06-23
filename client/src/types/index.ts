@@ -13,6 +13,7 @@ export interface Restaurant {
   phone?: string
   rating?: number
   reviewCount?: number
+  imageUrl?: string
   naverPlaceUrl?: string
 }
 
@@ -44,7 +45,7 @@ export interface SearchFilters {
   radius: number
 }
 
-export type RadiusOption = 50 | 100 | 300 | 500 | 1000
+export type RadiusOption = number
 
 export interface GeocodeResult {
   name: string
