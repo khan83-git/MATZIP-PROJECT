@@ -8,8 +8,8 @@ import {
   Heart,
   Navigation,
 } from 'lucide-react'
-import { useState } from 'react'
 import { useSearchStore } from '@/store/searchStore'
+import { useFavoriteStore } from '@/store/favoriteStore'
 import Header from '@/components/layout/Header'
 import Badge from '@/components/common/Badge'
 import Button from '@/components/common/Button'
@@ -21,7 +21,7 @@ function formatDistance(meters: number): string {
 export default function RestaurantDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [isFavorite, setIsFavorite] = useState(false)
+  const { isFavorite, toggleFavorite } = useFavoriteStore()
 
   const restaurants = useSearchStore(s => s.restaurants)
   const restaurant = restaurants.find(r => r.id === id)
@@ -49,14 +49,18 @@ export default function RestaurantDetailPage() {
         rightSlot={
           <button
             type="button"
-            onClick={() => setIsFavorite(v => !v)}
+            onClick={() => toggleFavorite(restaurant)}
             className="rounded-full p-1.5 hover:bg-gray-100"
-            aria-label={isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+            aria-label={
+              isFavorite(restaurant.id) ? '즐겨찾기 해제' : '즐겨찾기 추가'
+            }
           >
             <Heart
               size={20}
               className={
-                isFavorite ? 'fill-red-400 text-red-400' : 'text-gray-400'
+                isFavorite(restaurant.id)
+                  ? 'fill-red-400 text-red-400'
+                  : 'text-gray-400'
               }
             />
           </button>
@@ -64,17 +68,27 @@ export default function RestaurantDetailPage() {
       />
 
       <div className="flex-1 overflow-y-auto bg-gray-50">
-        {/* 이미지 영역 (Phase 3에서 실제 이미지 연동) */}
-        <div className="flex h-48 w-full items-center justify-center bg-gradient-to-br from-orange-100 to-amber-100 text-6xl">
-          {restaurant.category.includes('카페')
-            ? '☕'
-            : restaurant.category.includes('일식')
-              ? '🍱'
-              : restaurant.category.includes('중식')
-                ? '🥟'
-                : restaurant.category.includes('양식')
-                  ? '🍝'
-                  : '🍽️'}
+        {/* 이미지 영역 */}
+        <div className="h-48 w-full overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100">
+          {restaurant.imageUrl ? (
+            <img
+              src={restaurant.imageUrl}
+              alt={restaurant.name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-6xl">
+              {restaurant.category.includes('카페')
+                ? '☕'
+                : restaurant.category.includes('일식')
+                  ? '🍱'
+                  : restaurant.category.includes('중식')
+                    ? '🥟'
+                    : restaurant.category.includes('양식')
+                      ? '🍝'
+                      : '🍽️'}
+            </div>
+          )}
         </div>
 
         <div className="space-y-4 bg-white px-5 py-5">
