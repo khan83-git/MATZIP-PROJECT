@@ -157,38 +157,21 @@ export default function CurationPage() {
               </span>
             </div>
 
-            {streamText ? (
-              <div className="w-full rounded-2xl border border-orange-100 bg-white p-4">
-                <div className="mb-2 flex items-center gap-2">
-                  <Sparkles
-                    size={14}
-                    className="animate-pulse text-orange-400"
-                  />
-                  <span className="text-xs font-medium text-orange-500">
-                    AI가 분석 중이에요...
-                  </span>
-                </div>
-                <p className="text-xs leading-relaxed whitespace-pre-wrap text-gray-500">
-                  {streamText}
+            <>
+              <div className="space-y-1 text-center">
+                <p className="text-sm font-semibold text-gray-700">
+                  AI가 맛집을 분석중이에요
+                </p>
+                <p className="text-xs text-gray-400">
+                  주변 식당들을 꼼꼼히 살펴보고 있어요
                 </p>
               </div>
-            ) : (
-              <>
-                <div className="space-y-1 text-center">
-                  <p className="text-sm font-semibold text-gray-700">
-                    AI가 맛집을 분석중이에요
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    주변 식당들을 꼼꼼히 살펴보고 있어요
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-orange-400 [animation-delay:0ms]" />
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-orange-400 [animation-delay:150ms]" />
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-orange-400 [animation-delay:300ms]" />
-                </div>
-              </>
-            )}
+              <div className="flex gap-2">
+                <div className="h-2 w-2 animate-bounce rounded-full bg-orange-400 [animation-delay:0ms]" />
+                <div className="h-2 w-2 animate-bounce rounded-full bg-orange-400 [animation-delay:150ms]" />
+                <div className="h-2 w-2 animate-bounce rounded-full bg-orange-400 [animation-delay:300ms]" />
+              </div>
+            </>
           </div>
         )}
 
