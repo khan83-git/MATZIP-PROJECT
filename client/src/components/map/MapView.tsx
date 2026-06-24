@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useLocationStore } from '@/store/locationStore'
 import { useSearchStore } from '@/store/searchStore'
 import NaverMap, { DEFAULT_CENTER, type NaverMapHandle } from './NaverMap'
@@ -40,9 +40,16 @@ export default function MapView({ className = '' }: MapViewProps) {
 
   const handleMarkerClick = (restaurant: Restaurant) => {
     setSelectedRestaurant(restaurant)
-    setSheetRestaurant(restaurant)
-    mapRef.current?.panTo(restaurant.coords)
   }
+
+  useEffect(() => {
+    if (selectedRestaurant) {
+      setSheetRestaurant(selectedRestaurant)
+      if (naverMap) {
+        mapRef.current?.panTo(selectedRestaurant.coords)
+      }
+    }
+  }, [selectedRestaurant, naverMap])
 
   const handleSheetClose = () => {
     setSheetRestaurant(null)

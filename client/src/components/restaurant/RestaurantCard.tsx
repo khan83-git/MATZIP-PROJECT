@@ -1,6 +1,5 @@
 import { memo } from 'react'
 import { Star, MapPin, Phone, Heart } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
 import Badge from '@/components/common/Badge'
 import type { Restaurant } from '@/types'
 
@@ -23,11 +22,8 @@ const RestaurantCard = memo(function RestaurantCard({
   isSelected = false,
   onClick,
 }: RestaurantCardProps) {
-  const navigate = useNavigate()
-
   const handleClick = () => {
     onClick?.()
-    navigate(`/restaurant/${restaurant.id}`)
   }
 
   return (

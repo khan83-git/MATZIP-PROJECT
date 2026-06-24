@@ -283,7 +283,9 @@ export default function SearchPage() {
                     isSelected={selectedRestaurant?.id === r.id}
                     isFavorite={isFavorite(r.id)}
                     onFavoriteToggle={() => toggleFavorite(r)}
-                    onClick={() => setSelectedRestaurant(r)}
+                    onClick={() => {
+                      window.location.href = `https://place.map.kakao.com/${r.id}`
+                    }}
                   />
                 ))}
               </div>
