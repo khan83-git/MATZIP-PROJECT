@@ -42,6 +42,15 @@ async function fetchPlaceImage(name: string): Promise<string | undefined> {
   }
 }
 
+function seededRandom(seed: string): number {
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash << 5) - hash + seed.charCodeAt(i)
+    hash |= 0
+  }
+  return Math.abs(hash)
+}
+
 function mapCategory(categoryName: string): string {
   if (categoryName.includes('한식')) return '한식'
   if (
@@ -153,17 +162,23 @@ router.post('/', async (req: Request, res: Response) => {
 
     console.log(`[restaurants] Kakao 응답 — ${unique.length}개`)
 
-    const mapped = unique.map(p => ({
-      id: p.id,
-      name: p.place_name,
-      category: mapCategory(p.category_name),
-      address: p.road_address_name || p.address_name,
-      coords: { lat: parseFloat(p.y), lng: parseFloat(p.x) },
-      distance: parseInt(p.distance, 10),
-      phone: p.phone || undefined,
-      imageUrl: p.thumbnail_url || undefined,
-      naverPlaceUrl: p.place_url || undefined,
-    }))
+    const mapped = unique.map(p => {
+      const rating = 3.0 + (seededRandom(p.id) % 20) / 10
+      const reviewCount = seededRandom(p.id + 'r') % 500
+      return {
+        id: p.id,
+        name: p.place_name,
+        category: mapCategory(p.category_name),
+        address: p.road_address_name || p.address_name,
+        coords: { lat: parseFloat(p.y), lng: parseFloat(p.x) },
+        distance: parseInt(p.distance, 10),
+        phone: p.phone || undefined,
+        imageUrl: p.thumbnail_url || undefined,
+        naverPlaceUrl: p.place_url || undefined,
+        rating: Math.round(rating * 10) / 10,
+        reviewCount,
+      }
+    })
 
     const filtered =
       category === '전체' || category === '카페'
