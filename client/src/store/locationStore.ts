@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import type { LatLng, RadiusOption } from '@/types'
 
 interface LocationStore {
@@ -11,13 +12,18 @@ interface LocationStore {
   setRadius: (radius: RadiusOption) => void
 }
 
-export const useLocationStore = create<LocationStore>(set => ({
-  currentCoords: null,
-  centerCoords: null,
-  centerLabel: '',
-  radius: 100,
-  setCurrentCoords: coords => set({ currentCoords: coords }),
-  setCenterCoords: (coords, label = '') =>
-    set({ centerCoords: coords, centerLabel: label }),
-  setRadius: radius => set({ radius }),
-}))
+export const useLocationStore = create<LocationStore>()(
+  persist(
+    set => ({
+      currentCoords: null,
+      centerCoords: null,
+      centerLabel: '',
+      radius: 100,
+      setCurrentCoords: coords => set({ currentCoords: coords }),
+      setCenterCoords: (coords, label = '') =>
+        set({ centerCoords: coords, centerLabel: label }),
+      setRadius: radius => set({ radius }),
+    }),
+    { name: 'matzip-location' }
+  )
+)
